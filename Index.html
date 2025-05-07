@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Tic Tac Toe</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: skyblue;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .game {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 10px;
+      background: rgba(255, 255, 255, 0.3);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 1s ease;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5em;
+      font-weight: bold;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .cell:hover {
+      background: #e0f7fa;
+      transform: scale(1.05);
+    }
+
+    .cell.taken {
+      cursor: not-allowed;
+      color: #666;
+    }
+
+    .message {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1.5em;
+      color: #fff;
+      text-shadow: 1px 1px 2px #333;
+      animation: slideDown 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .win {
+      background-color: #81c784 !important;
+      color: white !important;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      border: none;
+      background-color: #4fc3f7;
+      color: white;
+      font-size: 1em;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #29b6f6;
+    }
+  </style>
+</head>
+<body>
+
+<div>
+  <div class="game" id="game"></div>
+  <div class="message" id="message">Giliran: X</div>
+  <div style="text-align: center;">
+    <button onclick="resetGame()">Main Lagi</button>
+  </div>
+</div>
+
+<script>
+  const gameContainer = document.getElementById('game');
+  const message = document.getElementById('message');
+  let currentPlayer = 'X';
+  let cells = [];
+  let gameOver = false;
+
+  function createBoard() {
+    gameContainer.innerHTML = '';
+    cells = [];
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.addEventListener('click', () => makeMove(i));
+      gameContainer.appendChild(cell);
+      cells.push(cell);
+    }
+  }
+
+  function makeMove(index) {
+    if (cells[index].textContent || gameOver) return;
+
+    cells[index].textContent = currentPlayer;
+    cells[index].classList.add('taken');
+
+    if (checkWin(currentPlayer)) {
+      message.textContent = `Pemain ${currentPlayer} Menang!`;
+      highlightWin(currentPlayer);
+      gameOver = true;
+    } else if (cells.every(cell => cell.textContent)) {
+      message.textContent = 'Seri!';
+      gameOver = true;
+    } else {
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      message.textContent = `Giliran: ${currentPlayer}`;
+    }
+  }
+
+  function checkWin(player) {
+    const winCombos = [
+      [0,1,2], [3,4,5], [6,7,8], // Baris
+      [0,3,6], [1,4,7], [2,5,8], // Kolom
+      [0,4,8], [2,4,6]           // Diagonal
+    ];
+
+    return winCombos.some(combo => 
+      combo.every(index => cells[index].textContent === player)
+    );
+  }
+
+  function highlightWin(player) {
+    const winCombos = [
+      [0,1,2], [3,4,5], [6,7,8],
+      [0,3,6], [1,4,7], [2,5,8],
+      [0,4,8], [2,4,6]
+    ];
+
+    winCombos.forEach(combo => {
+      if (combo.every(index => cells[index].textContent === player)) {
+        combo.forEach(index => cells[index].classList.add('win'));
+      }
+    });
+  }
+
+  function resetGame() {
+    currentPlayer = 'X';
+    gameOver = false;
+    message.textContent = `Giliran: ${currentPlayer}`;
+    createBoard();
+  }
+
+  createBoard();
+</script>
+
+</body>
+</html>
